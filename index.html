@@ -526,6 +526,28 @@
         window.addEventListener('resize', function () {
             chart.resize();
         });
+
+        const url = 'http://appmobile.tng.vn/production/api/cbc/line_data';
+        async function callApi() {
+            try {
+                const queryString = window.location.search;
+                const urlParams = new URLSearchParams(queryString);
+                const phongBanID = urlParams.get('phongBanID');
+                const danChuyenID = urlParams.get('danChuyenID');
+                console.log(phongBanID, danChuyenID);
+                const response = await fetch(`${url}?phongBanID=${phongBanID}&danChuyenID=${danChuyenID}`);
+                if (!response.ok) throw new Error("Lỗi HTTP " + response.status);
+
+                const data = await response.json();
+                console.log("Dữ liệu:", data);
+            } catch (error) {
+                console.error("Có lỗi:", error);
+            }
+        }
+        callApi();
+        setInterval(() => {
+            callApi();
+        }, 10000, 0);
     </script>
 </body>
 
