@@ -16,7 +16,7 @@
 <body>
     <header class="site-header">
         <h1>Thông tin sản xuất chuyền may</h1>
-        <h4>Tổ may 3 - DECATHLON - 352923 AW25</h4>
+        <h4 id="lineName">Tổ may 3 - DECATHLON - 352923 AW25</h4>
     </header>
     <main>
         <div class="row1 d-flex gap1vw align-bottom">
@@ -35,8 +35,8 @@
                     </div>
                     <span class="line"></span>
                     <div class="ct2">
-                        <div class="valuelight">38/40</div>
-                        <div class="subvalue">Vắng: <span class="red">2</span></div>
+                        <div class="valuelight" id="laoDong">38/40</div>
+                        <div class="subvalue">Vắng: <span class="red" id="laoDongVang">2</span></div>
                     </div>
                 </div>
                 <div class="d-flex space-between item1">
@@ -527,7 +527,7 @@
             chart.resize();
         });
 
-        const url = 'http://appmobile.tng.vn/production/api/cbc/line_data';
+        const url = 'http://appmobile.tng.vn/production/api/v4/cbc/line_data';
         async function callApi() {
             try {
                 const queryString = window.location.search;
@@ -540,6 +540,28 @@
 
                 const data = await response.json();
                 console.log("Dữ liệu:", data);
+                const {phongBan, mahang, thongTin, tienDo, taktTime, cycleTime} = data;
+                document.getElementById('laoDong').textContent = '';
+                document.getElementById('laoDongVang').textContent = '';
+                document.getElementById("laoDongVang").classList.remove('red');
+                if (thongTin?.tongSoNguoi) {
+                    const vang = (thongTin?.soNguoi_DiLam ?? 0) - thongTin?.tongSoNguoi;
+                    document.getElementById('laoDong').textContent = `${thongTin?.soNguoi_DiLam ?? 0}/${thongTin?.tongSoNguoi}`;
+                    document.getElementById('laoDongVang').textContent = `${vang}`;
+                    if (vang < 0) {
+                        document.getElementById("laoDongVang").classList.remove('blue-light');
+                        document.getElementById("laoDongVang").classList.add('red');
+                    } else {
+                        document.getElementById("laoDongVang").classList.remove('red');
+                        document.getElementById("laoDongVang").classList.add('blue-light');
+                    }
+                }
+                let lineName = phongBan?.tenPhongBan ?? '';
+                if (mahang) {
+                    lineName += lineName.length > 0 ? ' - ' : '';
+                    lineName += `${(mahang?.tenKhachHang ?? 'N/A').toUpperCase()} - ${mahang?.maHang ?? 'N/A'}`;
+                }
+                document.getElementById('lineName').textContent = lineName;
             } catch (error) {
                 console.error("Có lỗi:", error);
             }
